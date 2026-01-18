@@ -1,0 +1,23 @@
+#crypto-cards{
+    display: flex;
+    gap: 16px;
+    padding-top: 20px;
+    flex-wrap: wrap;
+}
+
+#coin-card{
+    border: 3px solid rgb(113, 113, 113);
+    padding: 10px;
+    border-radius: 10px;
+    width: 330px;
+}
+
+#coin-card:hover{
+    cursor:pointer;
+    background-color: rgb(201, 201, 201);
+}
+
+#info-card-logo{
+    width: 70px;
+    padding-bottom: 10px;
+}
