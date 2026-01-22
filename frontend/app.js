@@ -2,7 +2,9 @@ const form = document.getElementById("form");
 const coinName = document.getElementById("coin-name");
 const coinSymbol = document.getElementById("coin-symbol");
 const submitBtn = document.getElementById("submit-btn");
-const cardsDiv = document.getElementById("crypto-cards")
+const cardsDiv = document.getElementById("crypto-cards");
+const wrapper = document.getElementById("wrapper");
+const infoDiv = document.getElementById("info-cards");
 let response;
 let data;
 let filteredData = [];
@@ -10,6 +12,7 @@ let filteredData = [];
 form.addEventListener("submit", async (el) => {
     el.preventDefault();
     cardsDiv.innerHTML = "";
+    infoDiv.innerHTML = "";
     await getData();
     filteredData = data.filter((el) => {
         const matchName = el.name.toLowerCase().includes(coinName.value.toLowerCase()) || coinName.value === "";
@@ -71,7 +74,7 @@ function renderCards(){
             else{
                 priceChange.style.color = "green";
             }
-            cardsDiv.appendChild(infoCard);
+            infoDiv.appendChild(infoCard);
         })
         cardsDiv.append(newCard);
     });
