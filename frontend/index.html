@@ -23,6 +23,16 @@
         <div id="loading-state"></div>
         <div id="crypto-cards"></div>
         <div id="info-cards"></div>
+        <div id="chart-container" class="cards">
+            <h4>GRAPH</h4>
+            <div id="set-interval">
+                <button id="last-h" class="time-btn">Last Hour</button>
+                <button id="last-24h" class="time-btn">Last 24 Hours</button>
+                <button id="last-7d" class="time-btn">Last 7 Days</button>
+                <button id="last-30d" class="time-btn">Last 30 Days</button>
+            </div>
+            <canvas id="myChart"></canvas>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
