@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #484848, #313131, #171717);
+    background: linear-gradient(135deg, #333333, #292929, #171717);
     min-height: 100vh;
     color: #e8eaed;
     overflow-x: hidden;
@@ -250,6 +250,24 @@ body {
 
 #submit-btn:active {
     transform: translateY(-1px);
+}
+
+#set-interval {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+#time-buttons-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+#currency-switcher {
+    margin-left: auto;
 }
 
 .time-btn {

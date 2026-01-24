@@ -11,6 +11,7 @@ const lastH = document.getElementById("last-h");
 const last24H = document.getElementById("last-24h");
 const last7D = document.getElementById("last-7d");
 const last30D = document.getElementById("last-30d");
+const currencySwitcher = document.getElementById("currency-switcher");
 chartDiv.style.display = "none";
 let copyPrices;
 let coinsResponse;
@@ -20,6 +21,8 @@ let chartData;
 let filteredData = [];
 let chartGenerationCount = 0;
 let chart = null;
+let eurCurrency = true;
+let currentGraphInterval = 1; //0: 1H, 1: 24H, 2: 7D. 3:30D
 
 form.addEventListener("submit", async (el) => {
     el.preventDefault();
@@ -88,11 +91,13 @@ function renderCards() {
             lastH.addEventListener("click", async () => {
                 copyPrices = chartData.prices;
                 copyPrices = copyPrices.slice(-14);
+                currentGraphInterval = 0;
                 loadChart();
             });
 
             last24H.addEventListener("click", async () => {
                 copyPrices = chartData.prices;
+                currentGraphInterval = 1;
                 loadChart();
             });
 
@@ -100,6 +105,7 @@ function renderCards() {
                 let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=7`);
                 let data = await response.json();
                 copyPrices = data.prices;
+                currentGraphInterval = 2;
                 loadChart();
             });
 
@@ -107,7 +113,31 @@ function renderCards() {
                 let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=30`);
                 let data = await response.json();
                 copyPrices = data.prices;
+                currentGraphInterval = 3;
                 loadChart();
+            });
+
+            currencySwitcher.addEventListener("click", async () => {
+                eurCurrency = !eurCurrency;
+                if (eurCurrency) {
+                    currencySwitcher.textContent = "EUR";
+                    let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=${requestByInterval()}`);
+                    let data = await response.json();
+                    copyPrices = data.prices;
+                    if (currentGraphInterval === 0) {
+                        copyPrices = copyPrices.slice(-14);
+                    }
+                    loadChart();
+                } else {
+                    currencySwitcher.textContent = "USD";
+                    let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=usd&days=${requestByInterval()}`);
+                    let data = await response.json();
+                    copyPrices = data.prices;
+                    if (currentGraphInterval === 0) {
+                        copyPrices = copyPrices.slice(-14);
+                    }
+                    loadChart();
+                }
             });
             let priceChange = infoCard.querySelector("#price-change");
             if (el.price_change_percentage_24h < 0) {
@@ -159,13 +189,34 @@ async function loadChart() {
     }
     chart.data.labels = [];
     chart.data.datasets[0].data = [];
-    copyPrices.forEach(dailyPrice => {
-        console.log(dailyPrice);
-        chart.data.labels.push(new Date(dailyPrice[0]).toLocaleTimeString());
-        chart.data.datasets[0].data.push(dailyPrice[1]);
-    });
+    if (currentGraphInterval > 1) {
+        copyPrices.forEach(dailyPrice => {
+            console.log(dailyPrice);
+            chart.data.labels.push(new Date(dailyPrice[0]).toLocaleDateString());
+            chart.data.datasets[0].data.push(dailyPrice[1]);
+        });
+    } else {
+        copyPrices.forEach(dailyPrice => {
+            console.log(dailyPrice);
+            chart.data.labels.push(new Date(dailyPrice[0]).toLocaleTimeString());
+            chart.data.datasets[0].data.push(dailyPrice[1]);
+        });
+    }
     chart.update();
     chartGenerationCount++;
 }
 
-
+function requestByInterval() {
+        if (currentGraphInterval === 0) {
+            return 1;
+        }
+        if (currentGraphInterval === 1) {
+            return 1;
+        }
+        if (currentGraphInterval === 2) {
+            return 7;
+        }
+        if (currentGraphInterval === 3) {
+            return 30;
+        }
+    }

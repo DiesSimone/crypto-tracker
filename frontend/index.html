@@ -8,7 +8,7 @@
 </head>
 <body>
     <nav id="navbar">
-        <img src="" alt="app-logo" id="app-logo">
+        <img src="../models/logo.png" alt="app-logo" id="app-logo">
         <h2 id="app-name">Crypto Tracker</h2>
         <a href="">Login</a>
         <a href="">Watchlist</a>
@@ -26,10 +26,13 @@
         <div id="chart-container" class="cards">
             <h4>GRAPH</h4>
             <div id="set-interval">
-                <button id="last-h" class="time-btn">Last Hour</button>
-                <button id="last-24h" class="time-btn">Last 24 Hours</button>
-                <button id="last-7d" class="time-btn">Last 7 Days</button>
-                <button id="last-30d" class="time-btn">Last 30 Days</button>
+                <div id="time-buttons-group">
+                    <button id="last-h" class="time-btn">Last Hour</button>
+                    <button id="last-24h" class="time-btn">Last 24 Hours</button>
+                    <button id="last-7d" class="time-btn">Last 7 Days</button>
+                    <button id="last-30d" class="time-btn">Last 30 Days</button>
+                </div>
+                <button id="currency-switcher" class="time-btn">EUR</button>
             </div>
             <canvas id="myChart"></canvas>
         </div>
