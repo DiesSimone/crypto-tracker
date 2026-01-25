@@ -14,10 +14,12 @@ const last30D = document.getElementById("last-30d");
 const currencySwitcher = document.getElementById("currency-switcher");
 chartDiv.style.display = "none";
 let copyPrices;
-let coinsResponse;
-let coinsData;
-let chartResponse;
-let chartData;
+let overviewData;
+let usdPrice;
+let last24hRes;
+let last24hData;
+let last7dData;
+let last30dData;
 let filteredData = [];
 let chartGenerationCount = 0;
 let chart = null;
@@ -30,7 +32,7 @@ form.addEventListener("submit", async (el) => {
     infoDiv.innerHTML = "";
     chartDiv.style.display = "block";
     await getData();
-    filteredData = coinsData.filter((el) => {
+    filteredData = overviewData.filter((el) => {
         const matchName = el.name.toLowerCase().includes(coinName.value.toLowerCase()) || coinName.value === "";
         const matchSymbol = el.symbol.toLowerCase().includes(coinSymbol.value.toLowerCase()) || coinSymbol.value === "";
         return matchName && matchSymbol
@@ -39,8 +41,11 @@ form.addEventListener("submit", async (el) => {
 })
 
 async function getData() {
-    coinsResponse = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur");
-    coinsData = await coinsResponse.json();
+    let overviewRes = await fetch("/prices");
+    let eurToUsdRes = await fetch("/prices/eurtousd")
+    overviewData = await overviewRes.json();
+    let eurToUsdData = await eurToUsdRes.json();
+    usdPrice = eurToUsdData.data.rates.USD;
 }
 
 function formatNumber(num) {
@@ -84,35 +89,35 @@ function renderCards() {
                 <label>Price Change in the last 24h: <label id="price-change">${el.price_change_24h}$, ${el.price_change_percentage_24h}%</label></label>
                 
             `;
-            chartResponse = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=1`);
-            chartData = await chartResponse.json();
-            copyPrices = chartData.prices;
+            let last24hRes = await fetch(`/prices/24h?coinId=${el.id}`);
+            let last7dRes = await fetch(`/prices/7d?coinId=${el.id}`);
+            let last30dRes = await fetch(`/prices/30d?coinId=${el.id}`);
+            last24hData = await last24hRes.json();
+            last7dData = await last7dRes.json();
+            last30dData = await last30dRes.json();
+            copyPrices = structuredClone(last24hData.prices);
             loadChart();
             lastH.addEventListener("click", async () => {
-                copyPrices = chartData.prices;
+                copyPrices = structuredClone(last24hData.prices);
                 copyPrices = copyPrices.slice(-14);
                 currentGraphInterval = 0;
                 loadChart();
             });
 
             last24H.addEventListener("click", async () => {
-                copyPrices = chartData.prices;
+                copyPrices = structuredClone(last24hData.prices);
                 currentGraphInterval = 1;
                 loadChart();
             });
 
             last7D.addEventListener("click", async () => {
-                let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=7`);
-                let data = await response.json();
-                copyPrices = data.prices;
+                copyPrices = structuredClone(last7dData.prices);
                 currentGraphInterval = 2;
                 loadChart();
             });
 
             last30D.addEventListener("click", async () => {
-                let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=30`);
-                let data = await response.json();
-                copyPrices = data.prices;
+                copyPrices = structuredClone(last30dData.prices);
                 currentGraphInterval = 3;
                 loadChart();
             });
@@ -121,18 +126,39 @@ function renderCards() {
                 eurCurrency = !eurCurrency;
                 if (eurCurrency) {
                     currencySwitcher.textContent = "EUR";
-                    let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=eur&days=${requestByInterval()}`);
-                    let data = await response.json();
-                    copyPrices = data.prices;
+                    let response;
+                    if (currentGraphInterval === 1 || currentGraphInterval === 0){
+                        response = await last24hData;
+                    }
+                    else if (currentGraphInterval === 2) {
+                        response = await last7dData;
+                    } 
+                    else if (currentGraphInterval === 3) {
+                        response = await last30dData;
+                    }
+                    let data = response;
+                    copyPrices = await structuredClone(data.prices);
                     if (currentGraphInterval === 0) {
                         copyPrices = copyPrices.slice(-14);
                     }
                     loadChart();
                 } else {
                     currencySwitcher.textContent = "USD";
-                    let response = await fetch(`https://api.coingecko.com/api/v3/coins/${el.id}/market_chart?vs_currency=usd&days=${requestByInterval()}`);
-                    let data = await response.json();
-                    copyPrices = data.prices;
+                    let response;
+                    if (currentGraphInterval === 1 || currentGraphInterval === 0){
+                        response = await last24hData;
+                    }
+                    else if (currentGraphInterval === 2) {
+                        response = await last7dData;
+                    } 
+                    else if (currentGraphInterval === 3) {
+                        response = await last30dData;
+                    }
+                    let data = await response;
+                    copyPrices = await structuredClone(data.prices);
+                    copyPrices.forEach(el => {
+                        el[1] = el[1] * usdPrice;
+                    });
                     if (currentGraphInterval === 0) {
                         copyPrices = copyPrices.slice(-14);
                     }
@@ -206,17 +232,3 @@ async function loadChart() {
     chartGenerationCount++;
 }
 
-function requestByInterval() {
-        if (currentGraphInterval === 0) {
-            return 1;
-        }
-        if (currentGraphInterval === 1) {
-            return 1;
-        }
-        if (currentGraphInterval === 2) {
-            return 7;
-        }
-        if (currentGraphInterval === 3) {
-            return 30;
-        }
-    }

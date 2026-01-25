@@ -6,24 +6,26 @@
 Crypto Tracker is a personal project to track cryptocurrency prices in real-time.  
 - Fetches live data from public APIs
 - Displays price, 24h change, and basic info for each coin  
-- Allows adding coins to a personal watchlist  
-- Alerts users when a selected price threshold is reached (browser notifications)
+- Allows adding coins to a personal watchlist
 
 ## Features
 - Fetch and display top cryptocurrencies  
 - Filter by coin name or symbol  
-- Add coins to a watchlist stored in localStorage  
+- Add coins to a watchlist stored in database  
 
 ## Tech Stack
 - HTML / CSS / JavaScript (Frontend)  
 - Fetch API for real-time data  
-- LocalStorage for watchlist persistence
+- Backend built with Node.js and Express
 - PostgreSQL for account creation and data persistence  
 
 ## How to Run
-1. Clone this repository  
-2. Open `index.html` in your browser  
-3. Start exploring the tracker!
+1. **Clone this repository** ```git clone https://github.com/DiesSimone/crypto-tracker.git``` 
+2. **Enter the "backend" folder via terminal** ```cd .\backend\```
+3. **Type** ```npm install``` **to install all dependencies**
+4. **Type** ```npm start```
+5. **Go to your browser and type "localhost:3000"**
+5. **Start exploring the tracker!**
 
 ---
 
