@@ -24,7 +24,25 @@ let filteredData = [];
 let chartGenerationCount = 0;
 let chart = null;
 let eurCurrency = true;
-let currentGraphInterval = 1; //0: 1H, 1: 24H, 2: 7D. 3:30D
+let currentGraphInterval = 1; //0: 1H, 1: 24H, 2: 7D. 3:30D;
+let fetchCounter = 0;
+let MAX = 1;
+let fetchCooldown = 60;
+let cache;
+let myInterval = null;
+
+if (localStorage.getItem("cache") === null){
+    localStorage.setItem("cache", JSON.stringify({
+        counter: 0,
+        overviewCache: {},
+        eurToUsdCache: {}
+    }));
+    cache = JSON.parse(localStorage.getItem("cache"));
+} else {
+    cache = JSON.parse(localStorage.getItem("cache"));
+    fetchCounter = cache.counter;
+    overviewData = cache.overviewCache;
+}
 
 form.addEventListener("submit", async (el) => {
     el.preventDefault();
@@ -41,11 +59,30 @@ form.addEventListener("submit", async (el) => {
 })
 
 async function getData() {
-    let overviewRes = await fetch("/prices");
-    let eurToUsdRes = await fetch("/prices/eurtousd")
-    overviewData = await overviewRes.json();
-    let eurToUsdData = await eurToUsdRes.json();
-    usdPrice = eurToUsdData.data.rates.USD;
+    let overviewRes;
+    let eurToUsdRes
+    if (fetchCounter > MAX){
+        overviewRes = cache.overviewCache;
+        eurToUsdRes = cache.eurToUsdCache;
+        startCountdown();
+    } 
+    else {
+        overviewRes = await fetch("/prices");
+        // eurToUsdRes = await fetch("/prices/eurtousd");
+        
+        overviewRes = await overviewRes.json();
+        // eurToUsdRes = await eurToUsdRes.json();
+        
+        cache.overviewCache = overviewRes;
+        // cache.eurToUsdCache = eurToUsdRes;
+        fetchCounter++;
+        cache.counter = fetchCounter;
+        localStorage.setItem("cache", JSON.stringify(cache));
+    }
+    overviewData = overviewRes;
+    let eurToUsdData = eurToUsdRes;
+    // usdPrice = eurToUsdData.data.rates.USD;
+    usdPrice = 1.19;
 }
 
 function formatNumber(num) {
@@ -63,11 +100,11 @@ function renderCards() {
         newCard.innerHTML = `
         <h4>Coin Info Overview:</h4>
         <label>Coin Name: ${el.name}</label><br>
-        <label>Price: ${el.current_price}$</label><br>
-        <label>Market Cap: ${formatNumber(el.market_cap)}$</label><br>
-        <label>Total Volume: ${formatNumber(el.total_volume)}$</label><br>
-        <label>Top Price in the last 24hr: ${el.high_24h}$</label><br>
-        <label>Bottom Price in the last 24hr: ${el.low_24h}$</label><br>
+        <label>Price: ${el.current_price}€</label><br>
+        <label>Market Cap: ${formatNumber(el.market_cap)}€</label><br>
+        <label>Total Volume: ${formatNumber(el.total_volume)}€</label><br>
+        <label>Top Price in the last 24hr: ${el.high_24h}€</label><br>
+        <label>Bottom Price in the last 24hr: ${el.low_24h}€</label><br>
         `;
         newCard.addEventListener("click", async () => {
             cardsDiv.innerHTML = "";
@@ -82,11 +119,11 @@ function renderCards() {
                 <label>Marketcap Rank: ${el.market_cap_rank}</label><br>
 
                 <h4>Coin Details:</h4>
-                <label>Price: ${el.current_price}$</label><br>
-                <label>Top Price in the last 24hr: ${el.high_24h}$</label><br>
-                <label>Bottom Price in the last 24hr: ${el.low_24h}$</label><br>
-                <label>Market Cap: ${formatNumber(el.market_cap)}$</label><br>
-                <label>Price Change in the last 24h: <label id="price-change">${el.price_change_24h}$, ${el.price_change_percentage_24h}%</label></label>
+                <label>Price: ${el.current_price}€</label><br>
+                <label>Top Price in the last 24hr: ${el.high_24h}€</label><br>
+                <label>Bottom Price in the last 24hr: ${el.low_24h}€</label><br>
+                <label>Market Cap: ${formatNumber(el.market_cap)}€</label><br>
+                <label>Price Change in the last 24h: <label id="price-change">${el.price_change_24h}€, ${el.price_change_percentage_24h}%</label>
                 
             `;
             let last24hRes = await fetch(`/prices/24h?coinId=${el.id}`);
@@ -232,3 +269,17 @@ async function loadChart() {
     chartGenerationCount++;
 }
 
+function startCountdown(){
+    if (myInterval !== null) return;
+    fetchCooldown = 60;
+    myInterval = setInterval(() => {
+        console.log(fetchCooldown);
+        fetchCooldown--;
+
+        if (fetchCooldown < 0){
+            clearInterval(myInterval);
+            fetchCounter = 0;
+            myInterval = null;
+        }
+    }, 1000);
+}
