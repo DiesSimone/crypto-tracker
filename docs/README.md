@@ -17,7 +17,7 @@ Crypto Tracker is a personal project to track cryptocurrency prices in real-time
 - HTML / CSS / JavaScript (Frontend)  
 - Fetch API for real-time data  
 - Backend built with Node.js and Express
-- PostgreSQL for account creation and data persistence  
+- MongoDB for account creation and watchlist persistance
 
 ## How to Run
 1. **Clone this repository** ```git clone https://github.com/DiesSimone/crypto-tracker.git``` 

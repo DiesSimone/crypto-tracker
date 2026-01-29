@@ -19,6 +19,7 @@ async function startServer(){
         });
     } catch (error) {
         console.error("Error with the server start");
+        console.log(error);
     }
 }
 

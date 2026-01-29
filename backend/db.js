@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 async function connectDb(){
-    const uri = "mongodb+srv://simone:admin@cluster0.skdrjsr.mongodb.net/crypto-tracker?appName=Cluster0";
-    await mongoose.connect(uri);
+    await mongoose.connect(process.env.DATABASE_URI);
     console.log("Connected to database");
 }
 
