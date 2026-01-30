@@ -24,8 +24,9 @@ Crypto Tracker is a personal project to track cryptocurrency prices in real-time
 2. **Enter the "backend" folder via terminal** ```cd .\backend\```
 3. **Type** ```npm install``` **to install all dependencies**
 4. **Type** ```npm start```
-5. **Go to your browser and type "localhost:3000"**
-5. **Start exploring the tracker!**
+5. **Put your MONGODB database URI in a `.env` file inside `backend` with the name of `DATABASE_URI` to connect your database to the application**
+6. **Go to your browser and type "localhost:3000"**
+7. **Start exploring the tracker!**
 
 ---
 

@@ -31,7 +31,7 @@ let fetchCooldown = 60;
 let cache;
 let myInterval = null;
 
-if (localStorage.getItem("cache") === null){
+if (localStorage.getItem("cache") === null) {
     localStorage.setItem("cache", JSON.stringify({
         counter: 0,
         overviewCache: {},
@@ -61,18 +61,18 @@ form.addEventListener("submit", async (el) => {
 async function getData() {
     let overviewRes;
     let eurToUsdRes
-    if (fetchCounter > MAX){
+    if (fetchCounter >= MAX) {
         overviewRes = cache.overviewCache;
         eurToUsdRes = cache.eurToUsdCache;
         startCountdown();
-    } 
+    }
     else {
         overviewRes = await fetch("/prices");
         // eurToUsdRes = await fetch("/prices/eurtousd");
-        
+
         overviewRes = await overviewRes.json();
         // eurToUsdRes = await eurToUsdRes.json();
-        
+
         cache.overviewCache = overviewRes;
         // cache.eurToUsdCache = eurToUsdRes;
         fetchCounter++;
@@ -159,49 +159,8 @@ function renderCards() {
                 loadChart();
             });
 
-            currencySwitcher.addEventListener("click", async () => {
-                eurCurrency = !eurCurrency;
-                if (eurCurrency) {
-                    currencySwitcher.textContent = "EUR";
-                    let response;
-                    if (currentGraphInterval === 1 || currentGraphInterval === 0){
-                        response = await last24hData;
-                    }
-                    else if (currentGraphInterval === 2) {
-                        response = await last7dData;
-                    } 
-                    else if (currentGraphInterval === 3) {
-                        response = await last30dData;
-                    }
-                    let data = response;
-                    copyPrices = await structuredClone(data.prices);
-                    if (currentGraphInterval === 0) {
-                        copyPrices = copyPrices.slice(-14);
-                    }
-                    loadChart();
-                } else {
-                    currencySwitcher.textContent = "USD";
-                    let response;
-                    if (currentGraphInterval === 1 || currentGraphInterval === 0){
-                        response = await last24hData;
-                    }
-                    else if (currentGraphInterval === 2) {
-                        response = await last7dData;
-                    } 
-                    else if (currentGraphInterval === 3) {
-                        response = await last30dData;
-                    }
-                    let data = await response;
-                    copyPrices = await structuredClone(data.prices);
-                    copyPrices.forEach(el => {
-                        el[1] = el[1] * usdPrice;
-                    });
-                    if (currentGraphInterval === 0) {
-                        copyPrices = copyPrices.slice(-14);
-                    }
-                    loadChart();
-                }
-            });
+            currencySwitcher.removeEventListener("click", priceSwitcher);
+            currencySwitcher.addEventListener("click", priceSwitcher);
             let priceChange = infoCard.querySelector("#price-change");
             if (el.price_change_percentage_24h < 0) {
                 priceChange.style.color = "red";
@@ -254,13 +213,11 @@ async function loadChart() {
     chart.data.datasets[0].data = [];
     if (currentGraphInterval > 1) {
         copyPrices.forEach(dailyPrice => {
-            console.log(dailyPrice);
             chart.data.labels.push(new Date(dailyPrice[0]).toLocaleDateString());
             chart.data.datasets[0].data.push(dailyPrice[1]);
         });
     } else {
         copyPrices.forEach(dailyPrice => {
-            console.log(dailyPrice);
             chart.data.labels.push(new Date(dailyPrice[0]).toLocaleTimeString());
             chart.data.datasets[0].data.push(dailyPrice[1]);
         });
@@ -269,17 +226,62 @@ async function loadChart() {
     chartGenerationCount++;
 }
 
-function startCountdown(){
+function startCountdown() {
     if (myInterval !== null) return;
     fetchCooldown = 60;
     myInterval = setInterval(() => {
         console.log(fetchCooldown);
         fetchCooldown--;
 
-        if (fetchCooldown < 0){
+        if (fetchCooldown < 0) {
             clearInterval(myInterval);
             fetchCounter = 0;
             myInterval = null;
         }
     }, 1000);
+}
+
+async function priceSwitcher() {
+    eurCurrency = !eurCurrency;
+    console.log("Switching prices");
+    if (eurCurrency) {
+        currencySwitcher.textContent = "EUR";
+        let response;
+        if (currentGraphInterval === 1 || currentGraphInterval === 0) {
+            response = await last24hData;
+        }
+        else if (currentGraphInterval === 2) {
+            response = await last7dData;
+        }
+        else if (currentGraphInterval === 3) {
+            response = await last30dData;
+        }
+        let data = response;
+        copyPrices = await structuredClone(data.prices);
+        if (currentGraphInterval === 0) {
+            copyPrices = copyPrices.slice(-14);
+        }
+        loadChart();
+    } else {
+        currencySwitcher.textContent = "USD";
+        let response;
+        if (currentGraphInterval === 1 || currentGraphInterval === 0) {
+            response = await last24hData;
+        }
+        else if (currentGraphInterval === 2) {
+            response = await last7dData;
+        }
+        else if (currentGraphInterval === 3) {
+            response = await last30dData;
+        }
+        let data = await response;
+        copyPrices = await structuredClone(data.prices);
+        copyPrices.forEach(el => {
+            el[1] = el[1] * usdPrice;
+        });
+        if (currentGraphInterval === 0) {
+            copyPrices = copyPrices.slice(-14);
+        }
+        loadChart();
+    }
 }
