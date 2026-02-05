@@ -1,4 +1,3 @@
-const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 
 registerForm.addEventListener("submit", async (event) => {
