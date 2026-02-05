@@ -7,6 +7,14 @@ app.get("/", (req, res) =>{
     res.status(200).sendFile(path.join(__dirname, "..", "/frontend/index.html"));
 })
 
+app.get("/login", (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, "..", "/frontend/login.html"));
+});
+
+app.get("/register", (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, "..", "/frontend/register.html"));
+});
+
 app.all("*id", (req, res) => {
     res.status(200).send("<h1>404 - Page not Found</h1>")
 });
