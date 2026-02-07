@@ -2,15 +2,10 @@ const mongoose = require("mongoose");
 
 const watchlistSchema = mongoose.Schema(
     {
-        id: {
-            type: Number,
-            required: true,
-            unique: true
-        },
         user_id: {
-            type: Number,
+            type: String,
             required: true,
-            unique: true
+            unique: false
         },
         coin_id: {
             type: String,

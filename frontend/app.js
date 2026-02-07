@@ -123,9 +123,28 @@ function renderCards() {
                 <label>Top Price in the last 24hr: ${el.high_24h}€</label><br>
                 <label>Bottom Price in the last 24hr: ${el.low_24h}€</label><br>
                 <label>Market Cap: ${formatNumber(el.market_cap)}€</label><br>
-                <label>Price Change in the last 24h: <label id="price-change">${el.price_change_24h}€, ${el.price_change_percentage_24h}%</label>
-                
+                <label>Price Change in the last 24h: <label id="price-change">${el.price_change_24h}€, ${el.price_change_percentage_24h}%</label></label>
+                <label><input type="checkbox" name="add-watchlist" id="add-watchlist">Check this box to add the coin to your watchlist</label>                
             `;
+            const addCheckbox = infoCard.querySelector("#add-watchlist");
+            addCheckbox.addEventListener("change", async(e) => {
+                if (e.target.checked) {
+                    console.log("checkbox ticked");
+                    const res = await fetch("users/watchlist", {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type":"application/json"
+                        },
+                        body: JSON.stringify({
+                            coin_id: el.id
+                        })
+                    });
+                    console.log(res.json());
+                } else {
+                    console.log("checkbox unticked");
+                }
+            });
+
             let last24hRes = await fetch(`/prices/24h?coinId=${el.id}`);
             let last7dRes = await fetch(`/prices/7d?coinId=${el.id}`);
             let last30dRes = await fetch(`/prices/30d?coinId=${el.id}`);

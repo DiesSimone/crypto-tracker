@@ -15,6 +15,10 @@ app.get("/register", (req, res) => {
     res.status(200).sendFile(path.join(__dirname, "..", "/frontend/register.html"));
 });
 
+app.get('/watchlist', (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, '..', '/frontend/watchlist.html'));
+})
+
 app.all("*id", (req, res) => {
     res.status(200).send("<h1>404 - Page not Found</h1>")
 });

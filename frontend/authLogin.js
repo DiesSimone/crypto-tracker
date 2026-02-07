@@ -15,4 +15,5 @@ loginForm.addEventListener("submit", async (event) => {
     });
 
     console.log(await res.json());
+    window.location.href = '/';
 })
